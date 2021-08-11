@@ -1,10 +1,9 @@
 import React from 'react';
-import OrderPage from '../OrderPage/OrderPage';
 
 function LandingPage() {
   return (
     <div>
-      <OrderPage />
+      <h2>LandingPage</h2>
     </div>
   );
 }

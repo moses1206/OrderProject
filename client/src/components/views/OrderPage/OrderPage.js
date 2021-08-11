@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import OrderItem from './OrderItem';
+import Axios from 'axios';
 
 import styled from 'styled-components';
 
@@ -14,44 +15,75 @@ const ProductData = [
   { id: 6, name: '불닭소스', price: 3000 },
 ];
 
-function OrderPage() {
-  const [list, setList] = useState(ProductData);
-  const [total, setTotal] = useState(0);
-  const [result, setResult] = useState([]);
+function OrderPage(props) {
+  const [productList, setProductList] = useState(ProductData);
+  const [totalQuantity, setTotalQuantity] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [orderDetail, setOrderDetail] = useState([]);
 
   const changeCount = (id, count) => {
-    const newList = list.map((item) =>
+    const newList = productList.map((item) =>
       item.id === id ? { ...item, count } : item
     );
-    setList(newList);
+    setOrderDetail(newList);
+    setProductList(newList);
   };
 
   useEffect(() => {
-    const _total = list.reduce((acc, cur) => {
+    const _totalPrice = productList.reduce((acc, cur) => {
       if (cur.count > 0) {
         return acc + cur.price * cur.count;
       } else {
         return acc;
       }
     }, 0);
-    setTotal(_total);
-  }, [list]);
+    setTotalPrice(_totalPrice);
+
+    const _totalQuantity = productList.reduce((acc, cur) => {
+      if (cur.count > 0) {
+        return acc + cur.count;
+      } else {
+        return acc;
+      }
+    }, 0);
+    setTotalQuantity(_totalQuantity);
+  }, [productList]);
 
   const orderConfirmSubmit = (ev) => {
     ev.preventDefault();
-    const formData = list.filter((item) => item.count > 0);
-    setResult(formData);
+    const formData = orderDetail.filter((item) => item.count > 0);
+    setOrderDetail(formData);
   };
 
-  const orderSubmit = (ev) => {
-    ev.preventDefault();
-    console.log(result);
-    alert('주문완료!');
+  const orderSubmit = (event) => {
+    event.preventDefault();
+
+    //서버에 채운 값들을 request로 보낸다.
+
+    const body = {
+      //로그인 된 사람의 ID
+      writer: props.user.userData._id,
+      order_detail: orderDetail,
+      total_quantity: totalQuantity,
+      total_price: totalPrice,
+      address: '배송주소',
+      delivery_date: Date.now(),
+      delivery_time: '내일 오전 배송',
+    };
+
+    Axios.post('/api/order', body).then((response) => {
+      if (response.data.success) {
+        alert('주문이 완료되었습니다.');
+        props.history.push('/');
+      } else {
+        alert('상품 업로드에 실패 했습니다.');
+      }
+    });
   };
 
   return (
     <Container>
-      {result.length > 0 ? (
+      {orderDetail.length > 0 ? (
         <form onSubmit={orderSubmit}>
           <h1>아래 내역으로 주문 하시겠습니까?</h1>
           <article>
@@ -62,7 +94,7 @@ function OrderPage() {
             <span>금액</span>
           </article>
           <ul>
-            {result.map((item, index) => (
+            {orderDetail.map((item, index) => (
               <li key={`ITEM${item.id}`}>
                 <span>{index + 1}</span>
                 <span>{item.name}</span>
@@ -72,7 +104,7 @@ function OrderPage() {
               </li>
             ))}
           </ul>
-          <h1>ToTal : {nf.format(total)}원</h1>
+          <h1>ToTal : {nf.format(totalPrice)}원</h1>
           <button>주문하기</button>
         </form>
       ) : (
@@ -94,7 +126,7 @@ function OrderPage() {
               />
             ))}
           </ul>
-          <h1>ToTal : {nf.format(total)}원</h1>
+          <h1>ToTal : {nf.format(totalPrice)}원</h1>
           <button>주문하기</button>
         </form>
       )}
