@@ -17,29 +17,111 @@ const ProductData = [
 
 export default function OrderForm() {
   const [OrderList, setOrderList] = useState(ProductData);
+  const [TotalPrice, setTotalPrice] = useState(0);
+  const [TotalValue, setTotalValue] = useState(0);
+  const [FilteredOrderList, setFilteredOrderList] = useState([]);
 
-  const ChangeOrderValue = (id, count) => {
+  const changeOrderValue = (id, count) => {
     const NewOrderList = OrderList.map((item) =>
       item.id === id ? { ...item, count } : item
     );
+
+    setOrderList(NewOrderList);
+  };
+
+  useEffect(() => {
+    const _totalPrice = OrderList.reduce((acc, cur) => {
+      if (cur.count > 0) {
+        return acc + cur.price * cur.count;
+      } else {
+        return acc;
+      }
+    }, 0);
+    setTotalPrice(_totalPrice);
+
+    const _totalValue = OrderList.reduce((acc, cur) => {
+      if (cur.count > 0) {
+        return acc + cur.count * 1;
+      } else {
+        return acc;
+      }
+    }, 0);
+    setTotalValue(_totalValue);
+  }, [OrderList]);
+
+  console.log(FilteredOrderList);
+
+  const orderConfirm = (e) => {
+    e.preventDefault();
+    const submitData = OrderList.filter((item) => item.count > 0);
+    setFilteredOrderList(submitData);
+  };
+
+  const orderSubmit = () => {
+    alert('주문 완료');
   };
 
   return (
     <Container>
-      <form>
-        <article>
-          <span>No</span>
-          <span>제품명</span>
-          <span>단가</span>
-          <span>수량</span>
-          <span>금액</span>
-        </article>
-        <ul>
-          {OrderList.map((item, index) => (
-            <OrderItem item={item} index={index} />
-          ))}
-        </ul>
-      </form>
+      {FilteredOrderList.length > 0 ? (
+        <form onSubmit={orderSubmit}>
+          <h2>최종 주문하시겠습니까??</h2>
+          <article>
+            <span>No</span>
+            <span>제품명</span>
+            <span>단가</span>
+            <span>수량</span>
+            <span>금액</span>
+          </article>
+          <ul>
+            {FilteredOrderList.map((item, index) => (
+              <li key={index}>
+                <span>{index + 1}</span>
+                <span>{item.name}</span>
+                <span>{nf.format(item.price)}</span>
+                <span>{item.count}</span>
+                <span>{nf.format(item.price * (item.count * 1))}원</span>
+              </li>
+            ))}
+          </ul>
+          <span>주문수량 : {nf.format(TotalValue)}원</span>
+          <span style={{ marginLeft: '50px' }}>
+            주문금액 : {nf.format(TotalPrice)}원
+          </span>
+          <div>
+            <button>최종 주문하기</button>
+          </div>
+        </form>
+      ) : (
+        <form onSubmit={orderConfirm}>
+          <article>
+            <span>No</span>
+            <span>제품명</span>
+            <span>단가</span>
+            <span>수량</span>
+            <span>금액</span>
+          </article>
+          <ul>
+            {OrderList.map((item, index) => (
+              <OrderItem
+                key={index}
+                item={item}
+                index={index}
+                changeOrderValue={changeOrderValue}
+              />
+            ))}
+          </ul>
+          <span>주문수량 : {nf.format(TotalValue)}원</span>
+          <span style={{ marginLeft: '50px' }}>
+            주문금액 : {nf.format(TotalPrice)}원
+          </span>
+          <div>
+            <button>
+              <a href='/order/submit'></a>주문하기
+            </button>
+          </div>
+        </form>
+      )}
     </Container>
   );
 }

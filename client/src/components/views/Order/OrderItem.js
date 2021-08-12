@@ -1,13 +1,21 @@
 import React, { useEffect, useState } from 'react';
 
-export default function OrderItem({ item: { id, name, price }, index }) {
+export default function OrderItem({
+  item: { id, name, price },
+  index,
+  changeOrderValue,
+}) {
   const nf = new Intl.NumberFormat();
 
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState('');
 
-  const onChange = (e) => {
+  const onChangeCount = (e) => {
     setCount(e.currentTarget.value);
   };
+
+  useEffect(() => {
+    changeOrderValue(id, count);
+  }, [count]);
 
   return (
     <li key={`ITEM${id}`}>
@@ -15,7 +23,7 @@ export default function OrderItem({ item: { id, name, price }, index }) {
       <span>{name}</span>
       <span>{nf.format(price)}</span>
       <span>
-        <input value={count} maxLength={3} onChange={onChange} />
+        <input value={count} maxLength={3} onChange={onChangeCount} />
       </span>
       <span>{nf.format(price * (count * 1))}원</span>
     </li>

@@ -20,7 +20,7 @@ export default function OrderItem({
       <span>{name}</span>
       <span>{nf.format(price)}</span>
       <span>
-        <input value={count} onChange={onChangeCount} maxLength={3} />
+        <input value={count} onChangeCount={onChangeCount} maxLength={3} />
       </span>
       <span>{nf.format(price * (count * 1))}원</span>
     </li>
