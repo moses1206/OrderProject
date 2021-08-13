@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import OrderItem from './OrderItem';
 import Axios from 'axios';
-
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import styled from 'styled-components';
 
 const nf = new Intl.NumberFormat();
@@ -15,10 +16,20 @@ const ProductData = [
   { id: 6, name: '불닭소스', price: 3000 },
 ];
 
-export default function OrderForm() {
+const DeliveryTimes = [
+  { key: 1, value: '오전 첫배송' },
+  { key: 2, value: '오전 배송' },
+  { key: 3, value: '오후 첫배송' },
+  { key: 4, value: '오후 배송' },
+];
+
+export default function OrderForm(props) {
   const [OrderList, setOrderList] = useState(ProductData);
   const [TotalPrice, setTotalPrice] = useState(0);
   const [TotalValue, setTotalValue] = useState(0);
+  const [ShippingAddress, setShippingAddress] = useState('기본배송지');
+  const [DeliveryDate, setDeliveryDate] = useState(null);
+  const [DeliveryTime, setDeliveryTime] = useState(1);
   const [FilteredOrderList, setFilteredOrderList] = useState([]);
 
   const changeOrderValue = (id, count) => {
@@ -27,6 +38,14 @@ export default function OrderForm() {
     );
 
     setOrderList(NewOrderList);
+  };
+
+  const onChangeAddress = (e) => {
+    setShippingAddress(e.currentTarget.value);
+  };
+
+  const onChangeDeliveryTime = (e) => {
+    setDeliveryTime(e.currentTarget.value);
   };
 
   useEffect(() => {
@@ -49,23 +68,86 @@ export default function OrderForm() {
     setTotalValue(_totalValue);
   }, [OrderList]);
 
-  console.log(FilteredOrderList);
-
   const orderConfirm = (e) => {
     e.preventDefault();
     const submitData = OrderList.filter((item) => item.count > 0);
     setFilteredOrderList(submitData);
   };
 
-  const orderSubmit = () => {
-    alert('주문 완료');
+  const orderSubmit = (e) => {
+    e.preventDefault();
+
+    if (
+      !FilteredOrderList ||
+      !TotalValue ||
+      !TotalPrice ||
+      !ShippingAddress ||
+      !DeliveryDate ||
+      !DeliveryTime
+    ) {
+      return alert('모든 필드를 채워주세요!!');
+    }
+
+    const body = {
+      writer: props.user.userData._id,
+      order_detail: FilteredOrderList,
+      total_quantity: TotalValue,
+      total_price: TotalPrice,
+      address: ShippingAddress,
+      delivery_date: DeliveryDate,
+      delivery_time: DeliveryTime,
+    };
+
+    Axios.post('/api/orders', body).then((response) => {
+      if (response.data.success) {
+        setTimeout(() => {
+          props.history.push('/');
+        }, 1500);
+      } else {
+        alert('주문을 등록하는 것을 실패하였습니다. !!');
+      }
+    });
   };
 
   return (
     <Container>
       {FilteredOrderList.length > 0 ? (
         <form onSubmit={orderSubmit}>
-          <h2>최종 주문하시겠습니까??</h2>
+          <h2>아래 내용으로 주문하시겠습니까??</h2>
+          <br />
+          <br />
+          <div style={{ padding: '5px' }}>
+            <label>배송지주소</label>
+            <input value={ShippingAddress} onChange={onChangeAddress} />
+          </div>
+          <div style={{ padding: '5px', display: 'flex' }}>
+            <label>배송날짜</label>
+            <span style={{ marginLeft: '5px' }}>
+              <DatePicker
+                selected={DeliveryDate}
+                onChange={(date) => setDeliveryDate(date)}
+                dateFormat='yyyy-MM-dd'
+                minDate={new Date()}
+                filterDate={(date) =>
+                  date.getDay() !== 6 && date.getDay() !== 0
+                }
+              />
+            </span>
+          </div>
+
+          <div
+            style={{ padding: '5px', display: 'flex', marginBottom: '15px' }}
+          >
+            <label>배송시간</label>
+            <select onChange={onChangeDeliveryTime} value={DeliveryTime}>
+              {DeliveryTimes.map((item) => (
+                <option key={item.key} value={item.key}>
+                  {item.value}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <article>
             <span>No</span>
             <span>제품명</span>
@@ -94,6 +176,8 @@ export default function OrderForm() {
         </form>
       ) : (
         <form onSubmit={orderConfirm}>
+          <h2 style={{ textAlign: 'center' }}>주문하기</h2>
+          <br />
           <article>
             <span>No</span>
             <span>제품명</span>
@@ -111,14 +195,12 @@ export default function OrderForm() {
               />
             ))}
           </ul>
-          <span>주문수량 : {nf.format(TotalValue)}원</span>
+          <span>주문수량 : {nf.format(TotalValue)}박스</span>
           <span style={{ marginLeft: '50px' }}>
             주문금액 : {nf.format(TotalPrice)}원
           </span>
           <div>
-            <button>
-              <a href='/order/submit'></a>주문하기
-            </button>
+            <button>주문하기</button>
           </div>
         </form>
       )}

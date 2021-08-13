@@ -16,6 +16,7 @@ router.get('/auth', auth, (req, res) => {
     teamname: req.user.teamname,
     storename: req.user.storename,
     username: req.user.username,
+    shippingAddress: req.user.shippingAddress,
     email: req.user.email,
     role: req.user.role,
     image: req.user.image,

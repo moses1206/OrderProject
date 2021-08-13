@@ -15,6 +15,7 @@ export default function OrderItem({
 
   useEffect(() => {
     changeOrderValue(id, count);
+    // eslint-disable-next-line
   }, [count]);
 
   return (

@@ -17,6 +17,10 @@ const userSchema = mongoose.Schema({
     type: String,
     maxlength: 50,
   },
+  shippingAddress: {
+    type: String,
+    maxlength: 100,
+  },
 
   email: {
     type: String,

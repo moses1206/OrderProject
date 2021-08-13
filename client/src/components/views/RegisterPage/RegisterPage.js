@@ -38,6 +38,7 @@ function RegisterPage(props) {
         teamname: '',
         storename: '',
         username: '',
+        shippingAddress: '',
         email: '',
         password: '',
         confirmPassword: '',
@@ -46,6 +47,7 @@ function RegisterPage(props) {
         teamname: Yup.string().required('TeamName is required'),
         storename: Yup.string().required('Store Name is required'),
         username: Yup.string().required('User Name is required'),
+        shippingAddress: Yup.string().required('Shipping Address is required'),
         email: Yup.string()
           .email('Email is invalid')
           .required('Email is required'),
@@ -62,6 +64,7 @@ function RegisterPage(props) {
             teamname: values.teamname,
             storename: values.storename,
             username: values.username,
+            shippingAddress: values.shippingAddress,
             email: values.email,
             password: values.password,
             image: `http://gravatar.com/avatar/${moment().unix()}?d=identicon`,
@@ -151,6 +154,25 @@ function RegisterPage(props) {
                 />
                 {errors.username && touched.username && (
                   <div className='input-feedback'>{errors.username}</div>
+                )}
+              </Form.Item>
+
+              <Form.Item required label='배송지 주소'>
+                <Input
+                  id='shippingAddress'
+                  placeholder='배송주소를 입력하세요 !!'
+                  type='text'
+                  value={values.shippingAddress}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  className={
+                    errors.shippingAddress && touched.shippingAddress
+                      ? 'text-input error'
+                      : 'text-input'
+                  }
+                />
+                {errors.shippingAddress && touched.shippingAddress && (
+                  <div className='input-feedback'>{errors.shippingAddress}</div>
                 )}
               </Form.Item>
 
