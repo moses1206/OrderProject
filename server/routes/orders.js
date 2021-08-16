@@ -8,7 +8,7 @@ const { auth } = require('../middleware/auth');
 //             Orders
 //=================================
 
-router.post('/', (req, res) => {
+router.post('/', auth, (req, res) => {
   const order = new OrderModel(req.body);
 
   order.save((err, doc) => {
@@ -17,6 +17,16 @@ router.post('/', (req, res) => {
       success: true,
     });
   });
+});
+
+router.get('/getorders', auth, (req, res) => {
+  OrderModel.find()
+    .populate('writer')
+    .exec((err, ordersInfo) => {
+      if (err) return res.status(400).json({ success: false, err });
+
+      return res.status(200).json({ success: true, ordersInfo });
+    });
 });
 
 module.exports = router;

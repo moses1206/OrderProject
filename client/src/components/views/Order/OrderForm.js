@@ -141,7 +141,7 @@ export default function OrderForm(props) {
             <label>배송시간</label>
             <select onChange={onChangeDeliveryTime} value={DeliveryTime}>
               {DeliveryTimes.map((item) => (
-                <option key={item.key} value={item.key}>
+                <option key={item.key} value={item.value}>
                   {item.value}
                 </option>
               ))}
