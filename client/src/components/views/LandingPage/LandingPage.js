@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
-import { Icon, Row, Table, Tag, Space } from 'antd';
+import { Icon, Row, Button } from 'antd';
 
 import moment from 'moment';
 import LandingPageTable from './LandingPageTable';
 const nf = new Intl.NumberFormat();
 
-function LandingPage() {
+function LandingPage(props) {
   const [Orders, setOrders] = useState([]);
 
   const getOrders = () => {
@@ -22,41 +22,44 @@ function LandingPage() {
 
   useEffect(() => {
     getOrders();
+    console.log(Orders);
   }, []);
 
   const renderOrders = Orders.map((order, index) => {
-    var neworder = order.order_detail;
+    let neworder = order.order_detail;
     neworder.map((item, index) => {
       item.key = index;
       item.eachPrice = nf.format(item.price * item.count);
     });
+
+    const onDeleteHandler = (orderId, userId) => {
+      const variables = {
+        orderId,
+        userId,
+      };
+
+      Axios.post('/api/orders/deleteorder', variables).then((response) => {
+        if (response.data.success) {
+          getOrders();
+          console.log('주문 삭제하기', response.data);
+        } else {
+          alert('리스트에서 지우는데 실패하였습니다.!!');
+        }
+      });
+    };
+
     return (
-      // <div key={index}>
-      //   <span>점포명 : {order.writer.storename}</span>
-      //   <span style={{ marginLeft: '40px' }}>
-      //     주소 : {order.writer.shippingAddress}
-      //   </span>
-      //   <span style={{ marginLeft: '40px' }}>
-      //     날짜 : {moment(order.delivery_date).format('YYYY MM DD')}
-      //   </span>
-      //   <span style={{ marginLeft: '40px' }}>시간 : {order.delivery_time}</span>
-
-      //   <span style={{ marginLeft: '40px' }}>
-      //     주문수량 : {order.total_quantity}
-      //   </span>
-
-      //   <span style={{ marginLeft: '40px' }}>
-      //     주문금액 : {order.total_price}
-      //   </span>
-      // </div>
-      <LandingPageTable
-        writer={order.writer.storename}
-        orderDate={moment(order.delivery_date).format('YYYY-MM-DD')}
-        order={neworder}
-        totalPrice={nf.format(order.total_price)}
-        totalQuantity={order.total_quantity}
-        key={index}
-      />
+      <div key={index}>
+        <LandingPageTable
+          writer={order.writer.storename}
+          orderDate={moment(order.delivery_date).format('YYYY-MM-DD')}
+          order={order}
+          totalPrice={nf.format(order.total_price)}
+          totalQuantity={order.total_quantity}
+          onDeleteHandler={onDeleteHandler}
+          userId={props.user.userData._id}
+        />
+      </div>
     );
   });
 

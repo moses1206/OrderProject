@@ -29,4 +29,16 @@ router.get('/getorders', auth, (req, res) => {
     });
 });
 
+router.post('/deleteorder', (req, res) => {
+  console.log(req.body);
+  OrderModel.findOneAndDelete({
+    _id: req.body.orderId,
+    writer: req.body.userId,
+  }).exec((err, result) => {
+    if (err) return res.status(400).send(err);
+
+    return res.status(200).json({ success: true, result });
+  });
+});
+
 module.exports = router;
