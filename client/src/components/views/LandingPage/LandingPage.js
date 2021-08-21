@@ -13,7 +13,6 @@ function LandingPage(props) {
     Axios.get('/api/orders/getorders').then((response) => {
       if (response.data.success) {
         setOrders(response.data.ordersInfo);
-        console.log(response.data.ordersInfo);
       } else {
         alert('주문내역을 가져오는 것을 실패하였습니다. !!');
       }
@@ -22,7 +21,6 @@ function LandingPage(props) {
 
   useEffect(() => {
     getOrders();
-    console.log(Orders);
   }, []);
 
   const renderOrders = Orders.map((order, index) => {
@@ -58,6 +56,7 @@ function LandingPage(props) {
           totalQuantity={order.total_quantity}
           onDeleteHandler={onDeleteHandler}
           userId={props.user.userData._id}
+          history={props.history}
         />
       </div>
     );

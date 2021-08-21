@@ -5,26 +5,12 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import styled from 'styled-components';
 
+import { productData, DeliveryTimes } from '../../../data/Datas';
+
 const nf = new Intl.NumberFormat();
 
-const ProductData = [
-  { id: 1, name: '삼양라면', price: 2250 },
-  { id: 2, name: '불닭볶음면', price: 3250 },
-  { id: 3, name: '짜짜로니', price: 2650 },
-  { id: 4, name: '사또밥', price: 800 },
-  { id: 5, name: '짱구', price: 800 },
-  { id: 6, name: '불닭소스', price: 3000 },
-];
-
-const DeliveryTimes = [
-  { key: 1, value: '오전 첫배송' },
-  { key: 2, value: '오전 배송' },
-  { key: 3, value: '오후 첫배송' },
-  { key: 4, value: '오후 배송' },
-];
-
 export default function OrderForm(props) {
-  const [OrderList, setOrderList] = useState(ProductData);
+  const [OrderList, setOrderList] = useState(productData);
   const [TotalPrice, setTotalPrice] = useState(0);
   const [TotalValue, setTotalValue] = useState(0);
   const [ShippingAddress, setShippingAddress] = useState('기본배송지');
@@ -32,9 +18,9 @@ export default function OrderForm(props) {
   const [DeliveryTime, setDeliveryTime] = useState(1);
   const [FilteredOrderList, setFilteredOrderList] = useState([]);
 
-  const changeOrderValue = (id, count) => {
+  const changeOrderValue = (id, product_count) => {
     const NewOrderList = OrderList.map((item) =>
-      item.id === id ? { ...item, count } : item
+      item.product_id === id ? { ...item, product_count } : item
     );
 
     setOrderList(NewOrderList);
@@ -50,8 +36,8 @@ export default function OrderForm(props) {
 
   useEffect(() => {
     const _totalPrice = OrderList.reduce((acc, cur) => {
-      if (cur.count > 0) {
-        return acc + cur.price * cur.count;
+      if (cur.product_count > 0) {
+        return acc + cur.product_price * cur.product_count;
       } else {
         return acc;
       }
@@ -59,8 +45,8 @@ export default function OrderForm(props) {
     setTotalPrice(_totalPrice);
 
     const _totalValue = OrderList.reduce((acc, cur) => {
-      if (cur.count > 0) {
-        return acc + cur.count * 1;
+      if (cur.product_count > 0) {
+        return acc + cur.product_count * 1;
       } else {
         return acc;
       }
@@ -70,7 +56,7 @@ export default function OrderForm(props) {
 
   const orderConfirm = (e) => {
     e.preventDefault();
-    const submitData = OrderList.filter((item) => item.count > 0);
+    const submitData = OrderList.filter((item) => item.product_count > 0);
     setFilteredOrderList(submitData);
   };
 
@@ -108,6 +94,8 @@ export default function OrderForm(props) {
       }
     });
   };
+
+  console.log(FilteredOrderList);
 
   return (
     <Container>
@@ -149,7 +137,7 @@ export default function OrderForm(props) {
           </div>
 
           <article>
-            <span>No</span>
+            <span>SapCode</span>
             <span>제품명</span>
             <span>단가</span>
             <span>수량</span>
@@ -159,10 +147,12 @@ export default function OrderForm(props) {
             {FilteredOrderList.map((item, index) => (
               <li key={index}>
                 <span>{index + 1}</span>
-                <span>{item.name}</span>
-                <span>{nf.format(item.price)}</span>
-                <span>{item.count}</span>
-                <span>{nf.format(item.price * (item.count * 1))}원</span>
+                <span>{item.product_name}</span>
+                <span>{nf.format(item.product_price)}</span>
+                <span>{item.product_count}</span>
+                <span>
+                  {nf.format(item.product_price * (item.product_count * 1))}원
+                </span>
               </li>
             ))}
           </ul>
@@ -179,7 +169,7 @@ export default function OrderForm(props) {
           <h2 style={{ textAlign: 'center' }}>주문하기</h2>
           <br />
           <article>
-            <span>No</span>
+            <span>SapCode</span>
             <span>제품명</span>
             <span>단가</span>
             <span>수량</span>

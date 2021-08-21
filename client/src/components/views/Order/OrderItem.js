@@ -1,32 +1,44 @@
 import React, { useEffect, useState } from 'react';
 
 export default function OrderItem({
-  item: { id, name, price },
+  item: {
+    product_id,
+    product_category,
+    product_sapcode,
+    product_name,
+    product_price,
+  },
   index,
   changeOrderValue,
+  inputToggle,
 }) {
   const nf = new Intl.NumberFormat();
 
-  const [count, setCount] = useState('');
+  const [ProductCount, setProductCount] = useState('');
 
   const onChangeCount = (e) => {
-    setCount(e.currentTarget.value);
+    setProductCount(e.currentTarget.value);
   };
 
   useEffect(() => {
-    changeOrderValue(id, count);
+    changeOrderValue(product_id, parseInt(ProductCount));
     // eslint-disable-next-line
-  }, [count]);
+  }, [ProductCount]);
 
   return (
-    <li key={`ITEM${id}`}>
-      <span>{index + 1}</span>
-      <span>{name}</span>
-      <span>{nf.format(price)}</span>
+    <li key={`ITEM${product_id}`}>
+      <span>{product_sapcode}</span>
+      <span>{product_name}</span>
+      <span>{nf.format(product_price)}</span>
       <span>
-        <input value={count} maxLength={3} onChange={onChangeCount} />
+        <input
+          value={ProductCount}
+          maxLength={4}
+          onChange={onChangeCount}
+          disabled={inputToggle}
+        />
       </span>
-      <span>{nf.format(price * (count * 1))}원</span>
+      <span>{nf.format(product_price * (ProductCount * 1))}원</span>
     </li>
   );
 }
